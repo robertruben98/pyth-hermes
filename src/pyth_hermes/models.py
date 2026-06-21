@@ -3,12 +3,12 @@
 from __future__ import annotations
 
 from decimal import Decimal
-from typing import Optional
+from typing import Optional, Union
 
 from pydantic import BaseModel, ConfigDict, Field
 
 
-def price_to_decimal(price: int | str, expo: int) -> Decimal:
+def price_to_decimal(price: Union[int, str], expo: int) -> Decimal:
     """Convert a raw Pyth price + exponent into a real ``Decimal`` value.
 
     Real price = ``price * 10 ** expo``. Computed with ``Decimal`` to avoid
