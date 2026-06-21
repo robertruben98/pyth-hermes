@@ -28,4 +28,4 @@ __all__ = [
     "price_to_decimal",
 ]
 
-__version__ = "0.1.0"
+__version__ = "0.1.1"

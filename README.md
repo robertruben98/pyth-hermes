@@ -1,5 +1,10 @@
 # pyth-hermes
 
+[![CI](https://github.com/robertruben98/pyth-hermes/actions/workflows/ci.yml/badge.svg)](https://github.com/robertruben98/pyth-hermes/actions/workflows/ci.yml)
+[![PyPI version](https://img.shields.io/pypi/v/pyth-hermes.svg)](https://pypi.org/project/pyth-hermes/)
+[![Python versions](https://img.shields.io/pypi/pyversions/pyth-hermes.svg)](https://pypi.org/project/pyth-hermes/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/robertruben98/pyth-hermes/blob/main/LICENSE)
+
 A typed Python client for the [Pyth Network](https://pyth.network) **Hermes** price-oracle API. Sync **and** async clients, Pydantic v2 models, Server-Sent-Events price streaming with auto-reconnect, and a `Decimal` price helper.
 
 - Sync (`HermesClient`) and async (`AsyncHermesClient`) APIs over `httpx`
