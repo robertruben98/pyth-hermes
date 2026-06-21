@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import random
+import warnings
 from dataclasses import dataclass
 from typing import Optional
 
@@ -10,6 +11,34 @@ import httpx
 
 PRODUCTION_URL = "https://hermes.pyth.network"
 BETA_URL = "https://hermes-beta.pyth.network"
+
+#: Sentinel for ``base_url`` so we can tell "left at default" from "explicitly
+#: passed" (needed to warn when an injected client makes base_url a no-op).
+_BASE_URL_UNSET = "\x00__pyth_hermes_base_url_unset__"
+
+
+def warn_if_base_url_ignored(base_url: str, client_injected: bool) -> None:
+    """Warn when an explicit ``base_url`` cannot take effect.
+
+    Auth headers are applied per-request and so are honored even with a
+    caller-supplied httpx client, but the request URL is resolved against that
+    client's own ``base_url``. Passing both an explicit ``base_url`` and a
+    ``client`` therefore silently drops the former; make that loud instead.
+    """
+    if client_injected and base_url is not _BASE_URL_UNSET:
+        warnings.warn(
+            "base_url is ignored when a custom httpx client is supplied; the "
+            "request host is taken from the injected client. Set base_url on "
+            "the client itself (httpx.Client(base_url=...)) or omit the client.",
+            UserWarning,
+            stacklevel=3,
+        )
+
+
+def resolve_base_url(base_url: str) -> str:
+    """Map the sentinel back to the production default."""
+    return PRODUCTION_URL if base_url is _BASE_URL_UNSET else base_url
+
 
 # Rate limit: 10 requests / 10s per IP; exceeding -> HTTP 429 for the next 60s.
 RATE_LIMIT_WINDOW_SECONDS = 60.0

@@ -100,6 +100,16 @@ HermesClient(base_url="https://hermes-beta.pyth.network")  # beta
 HermesClient(base_url="https://your-paid-provider.example")  # Triton / P2P / extrnode / Liquify
 ```
 
+You may also inject your own preconfigured `httpx.Client` / `httpx.AsyncClient` via `client=...` (e.g. for custom transports, proxies, or connection pools). In that case the request host is taken from **your** client, so set `base_url` on the client itself — passing both `base_url=` and `client=` raises a `UserWarning` because the constructor's `base_url` would be a no-op. The `api_key` is still applied per-request, so it works with an injected client.
+
+```python
+import httpx
+from pyth_hermes import HermesClient
+
+http = httpx.Client(base_url="https://your-paid-provider.example", proxy="http://localhost:8080")
+client = HermesClient(api_key="KEY", client=http)  # base_url comes from `http`
+```
+
 ## Rate limits
 
 The public endpoint allows **10 requests / 10 seconds per IP**. Exceeding it returns HTTP 429 for the next 60 seconds. The client retries 429 and 5xx responses with exponential backoff + jitter, honoring any `Retry-After` header and never exceeding the 60s rate-limit window per delay. Tune via `max_retries`, `backoff_base`, `backoff_cap`.
