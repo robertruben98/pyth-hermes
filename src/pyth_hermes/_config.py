@@ -61,9 +61,17 @@ class ClientConfig:
     backoff_cap: float = 60.0
 
     def normalized_base_url(self) -> str:
+        """Return :attr:`base_url` without any trailing slash."""
         return self.base_url.rstrip("/")
 
     def auth_headers(self) -> dict[str, str]:
+        """Build the auth header dict for the configured API key.
+
+        Returns:
+            ``{header: "<scheme> <key>"}`` when an ``api_key`` is set (or
+            ``{header: "<key>"}`` when ``api_key_scheme`` is empty), else an
+            empty dict.
+        """
         if not self.api_key:
             return {}
         value = (
@@ -94,4 +102,13 @@ def retry_delay(attempt: int, response: Optional[httpx.Response], config: Client
 
 
 def should_retry(response: httpx.Response) -> bool:
+    """Return whether a response status warrants a retry.
+
+    Args:
+        response: The HTTP response to inspect.
+
+    Returns:
+        ``True`` for retryable statuses (429 plus 500/502/503/504), else
+        ``False``.
+    """
     return response.status_code in RETRY_STATUS_CODES
