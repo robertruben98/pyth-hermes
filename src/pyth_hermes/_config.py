@@ -81,7 +81,8 @@ def retry_delay(attempt: int, response: Optional[httpx.Response], config: Client
     """
     if response is not None and "Retry-After" in response.headers:
         try:
-            return min(float(response.headers["Retry-After"]), config.backoff_cap)
+            # Clamp to >= 0: a negative Retry-After would make time.sleep() raise.
+            return max(0.0, min(float(response.headers["Retry-After"]), config.backoff_cap))
         except ValueError:
             pass
 
