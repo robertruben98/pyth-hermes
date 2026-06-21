@@ -42,8 +42,10 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/arobertdev/pyth-hermes"
-Repository = "https://github.com/arobertdev/pyth-hermes"
+Homepage = "https://github.com/robertruben98/pyth-hermes"
+Repository = "https://github.com/robertruben98/pyth-hermes"
+Documentation = "https://docs.pyth.network/price-feeds/core/how-pyth-works/hermes"
+Issues = "https://github.com/robertruben98/pyth-hermes/issues"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/pyth_hermes"]

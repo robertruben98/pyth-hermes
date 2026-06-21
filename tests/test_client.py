@@ -1,3 +1,4 @@
+import warnings
 from decimal import Decimal
 
 import httpx
@@ -191,3 +192,53 @@ def test_get_latest_price_decimal_convenience() -> None:
 def test_client_is_context_manager() -> None:
     with HermesClient() as client:
         assert isinstance(client, HermesClient)
+
+
+@respx.mock
+def test_negative_retry_after_does_not_crash_sleep() -> None:
+    # A malicious/buggy server could send a negative Retry-After; time.sleep()
+    # raises ValueError on a negative value, so the delay must be clamped to >= 0.
+    route = respx.get("https://hermes.pyth.network/v2/updates/price/latest")
+    route.side_effect = [
+        httpx.Response(429, headers={"Retry-After": "-5"}),
+        httpx.Response(200, json=LATEST_JSON),
+    ]
+    client = HermesClient(max_retries=3, backoff_base=0.0, backoff_cap=60.0)
+    resp = client.get_latest_price([BTC_ID])
+    assert resp.parsed is not None
+    assert route.call_count == 2
+
+
+def test_retry_delay_clamps_negative_retry_after() -> None:
+    from pyth_hermes._config import ClientConfig, retry_delay
+
+    response = httpx.Response(429, headers={"Retry-After": "-5"})
+    delay = retry_delay(0, response, ClientConfig(backoff_base=0.0, backoff_cap=60.0))
+    assert delay >= 0.0
+
+
+def test_injected_client_with_explicit_base_url_warns() -> None:
+    # base_url cannot take effect on a caller-supplied client; warn loudly
+    # instead of silently dropping it.
+    http = httpx.Client(base_url="https://injected.example")
+    with pytest.warns(UserWarning, match="base_url"):
+        HermesClient(base_url="https://my.provider", client=http)
+    http.close()
+
+
+def test_injected_client_without_base_url_does_not_warn() -> None:
+    http = httpx.Client(base_url="https://injected.example")
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")  # any warning would fail the test
+        HermesClient(client=http)
+    http.close()
+
+
+def test_injected_client_still_sends_api_key_header() -> None:
+    # api_key IS honored with an injected client (applied per-request).
+    http = httpx.Client(base_url="https://injected.example")
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
+        client = HermesClient(api_key="tok", client=http)
+    assert client._auth_headers() == {"Authorization": "Bearer tok"}
+    http.close()

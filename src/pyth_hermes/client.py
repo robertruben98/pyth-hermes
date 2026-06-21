@@ -9,7 +9,14 @@ from typing import Any, Optional
 
 import httpx
 
-from pyth_hermes._config import ClientConfig, retry_delay, should_retry
+from pyth_hermes._config import (
+    _BASE_URL_UNSET,
+    ClientConfig,
+    resolve_base_url,
+    retry_delay,
+    should_retry,
+    warn_if_base_url_ignored,
+)
 from pyth_hermes.models import PriceFeed, PriceUpdateResponse
 
 
@@ -29,7 +36,7 @@ class HermesClient:
 
     def __init__(
         self,
-        base_url: str = ClientConfig.base_url,
+        base_url: str = _BASE_URL_UNSET,
         *,
         api_key: Optional[str] = None,
         api_key_header: str = "Authorization",
@@ -40,8 +47,9 @@ class HermesClient:
         backoff_cap: float = 60.0,
         client: Optional[httpx.Client] = None,
     ) -> None:
+        warn_if_base_url_ignored(base_url, client is not None)
         self._config = ClientConfig(
-            base_url=base_url,
+            base_url=resolve_base_url(base_url),
             api_key=api_key,
             api_key_header=api_key_header,
             api_key_scheme=api_key_scheme,
