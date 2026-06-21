@@ -214,7 +214,8 @@ def test_retry_delay_clamps_negative_retry_after() -> None:
 
     response = httpx.Response(429, headers={"Retry-After": "-5"})
     delay = retry_delay(0, response, ClientConfig(backoff_base=0.0, backoff_cap=60.0))
-    assert delay >= 0.0
+    # Retry-After "-5" must clamp to exactly 0.0 (never negative -> no sleep crash).
+    assert delay == 0.0
 
 
 def test_injected_client_with_explicit_base_url_warns() -> None:
