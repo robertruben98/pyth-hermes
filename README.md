@@ -2,6 +2,7 @@
 
 [![CI](https://github.com/robertruben98/pyth-hermes/actions/workflows/ci.yml/badge.svg)](https://github.com/robertruben98/pyth-hermes/actions/workflows/ci.yml)
 [![PyPI version](https://img.shields.io/pypi/v/pyth-hermes.svg)](https://pypi.org/project/pyth-hermes/)
+[![Docs](https://img.shields.io/badge/docs-online-blue)](https://robertruben98.github.io/pyth-hermes/)
 [![Python versions](https://img.shields.io/pypi/pyversions/pyth-hermes.svg)](https://pypi.org/project/pyth-hermes/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/robertruben98/pyth-hermes/blob/main/LICENSE)
 
