@@ -68,8 +68,10 @@ select = ["E", "F", "I", "UP", "B", "W"]
 ignore = ["UP045", "UP007"]
 
 [tool.mypy]
-# Analysis floor; the package itself supports >=3.9 at runtime.
-python_version = "3.10"
+# Analysis floor; the package itself supports >=3.9 at runtime. Pinned to 3.12
+# to match the CI interpreter so newer dependency stubs (numpy PEP 695 `type`
+# statements) parse under mypy.
+python_version = "3.12"
 strict = true
 files = ["src", "tests", "examples"]
 plugins = ["pydantic.mypy"]
